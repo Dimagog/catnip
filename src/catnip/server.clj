@@ -10,10 +10,11 @@
             [catnip.repl :as repl]
             [catnip.complete :as complete]
             [clojure.repl])
-  (:use [clojure.test])
+  (:use [clojure.test]
+        [catnip.pathtransformhandler])
   (:import [org.webbitserver WebServer WebServers WebSocketHandler
             HttpHandler]
-           [org.webbitserver.handler EmbeddedResourceHandler]
+           [org.webbitserver.handler EmbeddedResourceHandler StaticFileHandler]
            [java.net InetSocketAddress URI]
            [java.util.concurrent Executors]))
 
@@ -92,6 +93,7 @@
               (handleHttpRequest [req res ctl]
                 (send-index res))))
       (.add (EmbeddedResourceHandler. "catnip"))
+      (.add (path-transform-handler #"/files(/.*)" "$1" (StaticFileHandler. ".")))
       (.start))
     (def ^:dynamic *server* server)
     (.getUri server)))
